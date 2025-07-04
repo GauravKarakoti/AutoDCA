@@ -10,19 +10,18 @@ function App() {
   const [wallet, setWallet] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [strategies, setStrategies] = useState<any[]>([]);
-  const [account, setAccount] = useState<Account | null>(null);
+  const [account, setAccount] = useState<string | null>(null);
   
   // Form state
   const [tokenIn, setTokenIn] = useState('USDC');
   const [tokenOut, setTokenOut] = useState('ETH');
   const [amount, setAmount] = useState('10');
   const [interval, setInterval] = useState('86400');
-  
   const connectWallet = async () => {
     try {
       const accounts = await getAccounts();
       if (accounts.length > 0) {
-        const walletAddress = accounts[0].address.toString();
+        const walletAddress = accounts.toString();
         setWallet(walletAddress);
         setAccount(accounts[0]);
         localStorage.setItem('massa_wallet', walletAddress);
@@ -50,7 +49,6 @@ function App() {
         .addU64(BigInt(parseInt(interval)));
       
       await callSC(
-        account,
         DCA_CONTRACT,
         'createStrategy',
         args
@@ -64,6 +62,7 @@ function App() {
       setIsCreating(false);
     }
   };
+  connectWallet();
   
   useEffect(() => {
     const savedWallet = localStorage.getItem('massa_wallet');
@@ -78,7 +77,6 @@ function App() {
         <h1>AutoDCA</h1>
         <p>Automated Dollar-Cost Averaging on Massa</p>
       </header>
-      
       <WalletConnect onConnect={connectWallet} />
       
       {wallet && (
