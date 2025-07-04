@@ -1,0 +1,111 @@
+.App {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.connect-btn {
+  background: #4F46E5;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.connect-btn:hover {
+  background: #4338CA;
+}
+
+.strategy-form {
+  background: #F9FAFB;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  background: white;
+}
+
+.submit-btn {
+  background: #10B981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+.gas-info {
+  background: #EFF6FF;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.strategy-card {
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.wallet-info {
+  background-color: #e6f7ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.wallet-info span {
+  color: #f5222d;
+  font-weight: 500;
+}
+
+.strategy-form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.gas-info p {
+  color: #f5222d;
+  margin-top: 5px;
+}
+
+@media (max-width: 480px) {
+  .App {
+    padding: 1rem;
+  }
+  
+  .strategy-form {
+    padding: 1.25rem;
+  }
+}

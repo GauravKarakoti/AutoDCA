@@ -1,0 +1,33 @@
+{
+  "name": "autodca",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node tests",
+    "asbuild:debug": "asc assembly/index.ts --target debug",
+    "asbuild:release": "asc assembly/index.ts --target release",
+    "asbuild": "npm run asbuild:debug && npm run asbuild:release",
+    "start": "npx serve ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@massalabs/massa-as-sdk": "^3.0.2",
+    "@massalabs/massa-sc-deployer": "^2.2.0",
+    "@massalabs/massa-web3": "^5.2.0"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./build/release.js",
+      "types": "./build/release.d.ts"
+    }
+  },
+  "devDependencies": {
+    "@massalabs/deweb-cli": "^0.6.0",
+    "assemblyscript": "^0.28.2",
+    "dotenv": "^17.0.1"
+  }
+}
