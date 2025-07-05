@@ -1,11 +1,7 @@
 import {
-  JsonRpcProvider,
   JsonRpcPublicProvider,
   Args,
-  Operation,
-  Account,  // Required for JsonRpcProvider
   PublicAPI,
-  PrivateKey
 } from "@massalabs/massa-web3";
 
 const RPC_URL = "https://buildnet.massa.net/api/v2";
@@ -42,48 +38,51 @@ export async function callSC(
   coins = 0n
 ): Promise<any> {
   const w = window as any;
-
   if (!w.bearby?.wallet) {
     throw new Error("BearBy wallet not found");
   }
 
+  // 1. Connect & get public key
   await w.bearby.wallet.connect();
+  const senderPublicKey: string = await w.bearby.wallet.requestPubKey();
 
-  const pubKey = await w.bearby.wallet.requestPubKey();
+  // 2. Serialize and hex‑encode your args
+  const serializedParams = args.serialize();
+  const hexParams = Array.from(serializedParams, byte =>
+    byte.toString(16).padStart(2, "0")
+  ).join("");
 
+  // 3. Build the payload with the exact field names BearBy expects
   const txPayload = {
-    fee: "10000000", // Set reasonable fee in nanoMAS
-    amount: coins.toString(),
-    recipientAddress: scAddress,
-    senderPublicKey: pubKey,
-    functionName: funcName,
-    parameter: args.serialize().toString(), // Must be hex encoded
+    senderPublicKey,          // REQUIRED
+    expirePeriod: 0,          // (optional) set to 0 for default
+    fee: "10000000",          // nanoMAS
+    coins: coins.toString(),  // nanoMAS
+    targetAddress: scAddress, // the SC you’re calling
+    function: funcName,       // entrypoint in the SC
+    parameter: hexParams      // your args in hex
   };
 
-  // Ask BearBy to sign the transaction
+  // 4. Sign
   const signedTx = await w.bearby.wallet.signTransaction(txPayload);
 
-  // Send the signed operation manually via JSON-RPC
+  // 5. Send via JSON‑RPC
   const response = await fetch(RPC_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       jsonrpc: "2.0",
       method: "sendOperations",
-      params: [[signedTx]], // Array of signed operations
-      id: 0,
-    }),
+      params: [[signedTx]],
+      id: 0
+    })
   });
 
   const result = await response.json();
-
   if (result.error) {
     throw new Error(`Failed to send operation: ${result.error.message}`);
   }
-
-  return result.result; // usually the operation ID(s)
+  return result.result;
 }
 
 // Fetch contract events

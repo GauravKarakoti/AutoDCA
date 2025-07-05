@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import WalletConnect from './components/WalletConnect';
 import { getAccounts, callSC } from './lib/massa-web3';
 import './App.css';
-import { Account, Args } from '@massalabs/massa-web3';
+import {Args } from '@massalabs/massa-web3';
 
 const DCA_CONTRACT = "AS12c8P9ZCoW6Ae4t9v3v6yZiJ5tZMx5v7WcF1hq3RvHq1"; // Replace with actual address
 
@@ -47,12 +47,13 @@ function App() {
         .addString(tokenOut)                     // e.g. "ETH"
         .addU64(amountInCents)                   // uses U64 for numeric amounts
         .addU64(BigInt(parseInt(interval)));
-      
+      console.log("Everything set")
       await callSC(
         DCA_CONTRACT,
         'createStrategy',
         args
       );
+      console.log("callsc called")
       
       alert('Strategy created successfully!');
     } catch (error: any) {
@@ -62,7 +63,10 @@ function App() {
       setIsCreating(false);
     }
   };
-  connectWallet();
+
+  if(!account) {
+    connectWallet();
+  }
   
   useEffect(() => {
     const savedWallet = localStorage.getItem('massa_wallet');
