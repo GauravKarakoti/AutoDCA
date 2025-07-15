@@ -3,6 +3,7 @@ import WalletConnect from './components/WalletConnect';
 import { getAccounts, callSC } from './lib/massa-web3';
 import './App.css';
 import {Args } from '@massalabs/massa-web3';
+import StrategyDashboard from './components/StrategyDashboard'; 
 
 const DCA_CONTRACT = "AS12c8P9ZCoW6Ae4t9v3v6yZiJ5tZMx5v7WcF1hq3RvHq1"; // Replace with actual address
 
@@ -11,6 +12,8 @@ function App() {
   const [isCreating, setIsCreating] = useState(false);
   const [strategies, setStrategies] = useState<any[]>([]);
   const [account, setAccount] = useState<string | null>(null);
+  const [activeStrategy, setActiveStrategy] = useState<string | null>(null);
+  const [slippage, setSlippage] = useState<number>(1);
   
   // Form state
   const [tokenIn, setTokenIn] = useState('USDC');
@@ -64,6 +67,25 @@ function App() {
     }
   };
 
+  const createTemplateStrategy = async (templateId: number) => {
+    setIsCreating(true);
+    try {
+      const args = new Args().addU64(BigInt(templateId));
+      
+      await callSC(
+        DCA_CONTRACT,
+        'createTemplateStrategy',
+        args
+      );
+      
+      alert('Template strategy created!');
+    } catch (error) {
+      // ... error handling ...
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   if(!account) {
     connectWallet();
   }
@@ -86,6 +108,17 @@ function App() {
       {wallet && (
         <div className="strategy-form">
           <h2>Create New Strategy</h2>
+          <div className="template-section">
+            <h4>One-Click Templates:</h4>
+            <div className="template-buttons">
+              <button onClick={() => createTemplateStrategy(1)}>
+                Stablecoin Yield Farmer
+              </button>
+              <button onClick={() => createTemplateStrategy(2)}>
+                Blue-Chip Accumulator
+              </button>
+            </div>
+          </div>
           <p className="wallet-info">
             Connected: {wallet.slice(0, 6)}...{wallet.slice(-4)}
             {!account && <span> (Reconnect to sign transactions)</span>}
@@ -128,6 +161,19 @@ function App() {
               <option value="604800">Weekly</option>
             </select>
           </div>
+
+          <div className="form-group">
+            <label>Slippage Tolerance (%)</label>
+            <input 
+              type="range" 
+              min="0.1" 
+              max="5" 
+              step="0.1"
+              value={slippage}
+              onChange={(e) => setSlippage(Number(e.target.value))}
+            />
+            <span>{slippage}%</span>
+          </div>
           
           <button 
             className="submit-btn" 
@@ -155,6 +201,10 @@ function App() {
             </div>
           ))}
         </div>
+      )}
+
+      {activeStrategy && (
+        <StrategyDashboard strategyId={activeStrategy} />
       )}
     </div>
   );

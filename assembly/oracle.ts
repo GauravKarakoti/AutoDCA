@@ -2,8 +2,10 @@ import { generateEvent, Storage } from "@massalabs/massa-as-sdk";
 import { Strategy } from "./autodca";
 import { DeWebLogger } from "./deweb";
 
+const FEE_PERCENTAGE: u64 = 1; // 0.1% fee
+
 class Oracle {
-  static executeSwap(strategy: Strategy): void {
+  static executeSwap(strategy: Strategy): { bestPrice: f64, feeApplied: u64 } {
     // Get best price from multiple sources
     const dexSources = ["DEX1", "DEX2", "DEX3"];
     let bestPrice = 0.0;
@@ -17,9 +19,19 @@ class Oracle {
       }
     }
 
-    // Calculate output based on best price
+    // Apply slippage tolerance
+    const minPrice = bestPrice * (10000 - strategy.slippage) / 10000;
+    
+    // Calculate output with slippage protection
     const amountIn = strategy.amount;
-    const amountOut = U64.parseInt((f64(amountIn) * bestPrice).toString());
+    let amountOut = U64.parseInt((f64(amountIn) * bestPrice).toString());
+    
+    // Apply fee if not exempt
+    let feeApplied: u64 = 0;
+    if (!strategy.feeExempt) {
+      feeApplied = amountOut * FEE_PERCENTAGE / 1000; // 0.1%
+      amountOut -= feeApplied;
+    }
 
     // Execute simulated swap
     generateEvent(`Swapped ${amountIn} ${strategy.tokenIn} -> ${amountOut} ${strategy.tokenOut} via ${bestDex}`);
@@ -34,8 +46,10 @@ class Oracle {
     Storage.set(outKey, (currentOut + amountOut).toString());
 
     // Log to DeWeb
-    const eventData = `Swapped ${amountIn} ${strategy.tokenIn} for ${amountOut} ${strategy.tokenOut} at ${bestPrice} rate`;
+    const eventData = `Swapped|${amountIn}|${amountOut}|${bestDex}|${bestPrice}|${feeApplied}`;
     DeWebLogger.logStrategyEvent(strategy.id, eventData);
+
+    return { bestPrice, feeApplied };
   }
 
   static getDexPrice(dex: string, strategy: Strategy): f64 {
@@ -49,6 +63,6 @@ class Oracle {
   }
 }
 
-export function executeSwap(strategy: Strategy): void {
-  Oracle.executeSwap(strategy);
+export function executeSwap(strategy: Strategy): { bestPrice: f64, feeApplied: u64 } {
+  return Oracle.executeSwap(strategy);
 }

@@ -1,0 +1,21 @@
+{
+  "short_name": "AutoDCA",
+  "name": "AutoDCA - Massa DCA Platform",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#f3f4f6",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#4F46E5"
+}

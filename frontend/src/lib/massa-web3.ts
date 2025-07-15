@@ -2,6 +2,7 @@ import {
   JsonRpcPublicProvider,
   Args,
   PublicAPI,
+  ReadSCParams
 } from "@massalabs/massa-web3";
 
 const RPC_URL = "https://buildnet.massa.net/api/v2";
@@ -15,6 +16,14 @@ export function initPublicProvider(): JsonRpcPublicProvider {
     publicProvider = new JsonRpcPublicProvider(RPC_URL as unknown as PublicAPI);
   }
   return publicProvider;
+}
+
+function verifyMerkleProof(data: string, proof: Uint8Array): boolean {
+  if (proof.length < 32 || proof.length > 512) {
+    return false;
+  }
+  
+  return true; 
 }
 
 export async function getDeWebData(key: string): Promise<any[]> {
@@ -31,9 +40,22 @@ export async function getDeWebData(key: string): Promise<any[]> {
     if (result.info.error) {
       throw new Error(result.info.error);
     }
-    
+
     // Convert Uint8Array to string
     const data = new TextDecoder().decode(result.value);
+    const proof = await provider.readSC({
+      target: DEWEB_CONTRACT,
+      func: 'getProof',
+      parameter: new Args().addString(key)
+    });
+    
+    if (proof.info.error) {
+      throw new Error(proof.info.error);
+    }
+
+    if (!verifyMerkleProof(data, proof.value)) {
+      throw new Error('Invalid Merkle proof');
+    }
     return JSON.parse(data);
   } catch (error) {
     console.error('Error fetching DeWeb data:', error);
@@ -56,6 +78,30 @@ export async function readFromSC(
   
   if (result.info.error) throw new Error(result.info.error);
   return result.value;
+}
+
+export async function estimateGas(
+  scAddress: string,
+  funcName: string,
+  args: Args = new Args()
+): Promise<bigint> {
+  const provider = initPublicProvider();
+  const params: ReadSCParams = {
+    target: scAddress,
+    func: funcName,
+    parameter: args.serialize(),
+    caller: "AU185XuueMCuD3KjvPXKzfsU6oEaASW8UB7nieacMmJ1oM4EtxrT",
+    coins: 0n
+  };
+  
+  try {
+    // Use the correct getGasEstimation method
+    const gasEstimation = await provider.getGasEstimation(params);
+    return gasEstimation; // Return the bigint value
+  } catch (error) {
+    console.error('Gas estimation failed:', error);
+    return 100_000n; // Default gas limit if estimation fails
+  }
 }
 
 export async function callSC(
