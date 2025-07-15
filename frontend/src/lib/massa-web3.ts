@@ -5,6 +5,7 @@ import {
 } from "@massalabs/massa-web3";
 
 const RPC_URL = "https://buildnet.massa.net/api/v2";
+const DEWEB_CONTRACT = "AS1TjZ25vsQq44nsif7kuexjVFNi6CXHCKamvEqgTkWsov5W1zQD";
 
 let publicProvider: JsonRpcPublicProvider | null = null;
 
@@ -16,6 +17,30 @@ export function initPublicProvider(): JsonRpcPublicProvider {
   return publicProvider;
 }
 
+export async function getDeWebData(key: string): Promise<any[]> {
+  const provider = initPublicProvider();
+  try {
+    // Call DeWeb contract's view function
+    const result = await provider.readSC({
+      target: DEWEB_CONTRACT,
+      func: 'getData',
+      parameter: new Args().addString(key)
+    });
+    
+    // Parse the result
+    if (result.info.error) {
+      throw new Error(result.info.error);
+    }
+    
+    // Convert Uint8Array to string
+    const data = new TextDecoder().decode(result.value);
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error fetching DeWeb data:', error);
+    throw new Error('Failed to retrieve DeWeb data');
+  }
+}
+
 // Read-only contract call
 export async function readFromSC(
   scAddress: string,
@@ -23,12 +48,14 @@ export async function readFromSC(
   args: Args = new Args()
 ): Promise<Uint8Array> {
   const p = initPublicProvider();
-  const { value, info } = await p.readSC({
+  const result = await p.readSC({
     target: scAddress,
     func: funcName,
+    parameter: args
   });
-  if (info.error) throw new Error(info.error);
-  return value;
+  
+  if (result.info.error) throw new Error(result.info.error);
+  return result.value;
 }
 
 export async function callSC(

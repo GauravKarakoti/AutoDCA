@@ -2,7 +2,7 @@
 
 > Fully autonomous DCA powered by Massa’s Autonomous Smart Contracts.
 
-Frontend deployed at `AS12BamKSbB9yoWCQvfjUJTbfjoMEpSi5q1mxK2SzRCa3C1L5dMfG`
+Frontend deployed at `AS1TjZ25vsQq44nsif7kuexjVFNi6CXHCKamvEqgTkWsov5W1zQD`
 
 ## 🔍 Overview
 AutoDCA automates crypto investments using Massa’s ASCs. Set recurring buys (e.g., "Swap $10 USDC → ETH daily"), and the protocol executes trades trustlessly—no intermediaries.

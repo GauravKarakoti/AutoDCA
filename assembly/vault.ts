@@ -1,6 +1,5 @@
 import { generateEvent, Context, Storage } from "@massalabs/massa-as-sdk";
 import { Strategy } from "./autodca";
-import { Args } from "@massalabs/as-types"
  
 class Vault {
   static deposit(token: string, amount: u64): void {

@@ -100,6 +100,43 @@ input, select {
   margin-top: 5px;
 }
 
+.strategy-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.logs {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+.log-entry {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.timestamp {
+  color: #6c757d;
+  margin-right: 10px;
+}
+
+.message {
+  font-weight: 500;
+}
+
+.error {
+  padding: 10px;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  color: #f44336;
+}
+
 @media (max-width: 480px) {
   .App {
     padding: 1rem;
